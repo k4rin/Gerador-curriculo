@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+.toast {
+  @apply fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg opacity-0 pointer-events-none;
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+.toast.show {
+  @apply opacity-100 pointer-events-auto;
+}
