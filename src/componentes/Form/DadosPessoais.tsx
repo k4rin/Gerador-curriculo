@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { ClipLoader } from "react-spinners";
+
+
 interface PersonalInfoData {
   name: string;
   email: string;
@@ -8,8 +11,10 @@ interface PersonalInfoData {
 }
 
 interface PersonalInfoProps {
-  data: PersonalInfoData;
-  onChange: (field: keyof PersonalInfoData, value: string) => void;
+  data:  PersonalInfoData;
+  onChange: (field: keyof  PersonalInfoData, value: string) => void;
+   onImproveSummary: (text: string) => void; // Prop restaurada para compatibilidade
+  isSummaryLoading: boolean; 
 }
 
 interface Errors {
@@ -21,9 +26,11 @@ interface Errors {
 }
 
 const MAX_SUMMARY_LENGTH = 500;
-export function PersonalInfo({ data, onChange }: PersonalInfoProps) {
+
+export function PersonalInfo({ data, onChange,  onImproveSummary, isSummaryLoading }: PersonalInfoProps) {
   const [errors, setErrors] = useState<Errors>({});
 
+ 
   // Validação em tempo real
   useEffect(() => {
     const newErrors: Errors = {};
@@ -48,18 +55,27 @@ export function PersonalInfo({ data, onChange }: PersonalInfoProps) {
 
     setErrors(newErrors);
   }, [data]);
+
   // Handler genérico para inputs
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target;
     onChange(name as keyof PersonalInfoData, value);
   }
 
+   //  Chama a IA para melhorar o summary
+   const handleImproveSummary = () => {
+    if (!data.summary.trim()) 
+      return;
+    onImproveSummary(data.summary);
+  };
+
+
   return (
     <form className="space-y-4 p-4">
       {/* Nome */}
       <div>
         <label htmlFor="name" className="block font-semibold mb-1">
-          Nome <span className="text-red-600">*</span>
+          Nome <span className="text-[#d60000]">*</span>
         </label>
         <input
           id="name"
@@ -68,18 +84,18 @@ export function PersonalInfo({ data, onChange }: PersonalInfoProps) {
           value={data.name}
           onChange={handleChange}
           className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${
-            errors.name ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+            errors.name ? "border-[#ef4444] focus:ring-[#ef4444]" : "border-[#d1d5db] focus:ring-[#3b82f6]"
           }`}
           placeholder="Seu nome completo"
           required
         />
-        {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
+        {errors.name && <p className="text-[#d60000] text-sm mt-1">{errors.name}</p>}
       </div>
 
       {/* Email */}
       <div>
         <label htmlFor="email" className="block font-semibold mb-1">
-          Email <span className="text-red-600">*</span>
+          Email <span className="text-[#d60000] ">*</span>
         </label>
         <input
           id="email"
@@ -88,12 +104,12 @@ export function PersonalInfo({ data, onChange }: PersonalInfoProps) {
           value={data.email}
           onChange={handleChange}
           className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${
-            errors.email ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+            errors.email ? "border-[#ef4444] focus:ring-[#ef4444]" : "border-[#d1d5db] focus:ring-[#3b82f6]"
           }`}
           placeholder="exemplo@dominio.com"
           required
         />
-        {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
+        {errors.email && <p className="text-[#d60000] text-sm mt-1">{errors.email}</p>}
       </div>
 
          {/* Telefone */}
@@ -108,11 +124,11 @@ export function PersonalInfo({ data, onChange }: PersonalInfoProps) {
           value={data.phone}
           onChange={handleChange}
           className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${
-            errors.phone ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+            errors.phone ? "border-[#ef4444] focus:ring-[#ef4444]" : "border-[#d1d5db] focus:ring-[#3b82f6]"
           }`}
           placeholder="+55 (11) 99999-9999"
         />
-        {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone}</p>}
+        {errors.phone && <p className="text-[#d60000]  text-sm mt-1">{errors.phone}</p>}
       </div>
 
        {/* LinkedIn */}
@@ -127,11 +143,11 @@ export function PersonalInfo({ data, onChange }: PersonalInfoProps) {
           value={data.linkedin}
           onChange={handleChange}
           className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${
-            errors.linkedin ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+            errors.linkedin ? "border-[#ef4444] focus:ring-[#ef4444]" : "border-[#d1d5db] focus:ring-[#3b82f6]"
           }`}
           placeholder="https://linkedin.com/in/seu-perfil"
         />
-        {errors.linkedin && <p className="text-red-600 text-sm mt-1">{errors.linkedin}</p>}
+        {errors.linkedin && <p className="text-[#d60000]  text-sm mt-1">{errors.linkedin}</p>}
       </div>
 
       {/* Resumo Profissional */}
@@ -143,19 +159,48 @@ export function PersonalInfo({ data, onChange }: PersonalInfoProps) {
           id="summary"
           name="summary"
           value={data.summary}
-          onChange={handleChange}
+          onChange={(e) => onChange("summary", e.target.value)}
           maxLength={MAX_SUMMARY_LENGTH}
           rows={5}
+           disabled={isSummaryLoading}
           className={`w-full border rounded px-3 py-2 resize-none focus:outline-none focus:ring ${
-            errors.summary ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"
+            errors.summary ? "border-[#ef4444] focus:ring-[#ef4444]" : "border-[#d1d5db] focus:ring-[#3b82f6]"
           }`}
           placeholder="Descreva brevemente sua experiência e objetivos profissionais"
         />
-        <div className="text-right text-sm text-gray-500">
+        <div className="text-right text-sm text-[#6b7280]">
           {data.summary.length} / {MAX_SUMMARY_LENGTH} caracteres
         </div>
-        {errors.summary && <p className="text-red-600 text-sm mt-1">{errors.summary}</p>}
+        {errors.summary && <p className="text-[#d60000] text-sm mt-1">{errors.summary}</p>}
+      
+       {/* Botão de IA - Adaptado para usar hook */}
+        <button
+          type="button" // Adicionado para evitar submit do form
+          onClick={handleImproveSummary}
+          disabled={isSummaryLoading || !data.summary.trim()}
+          className="improve-btn mt-2 px-4 py-2 bg-[#3b82f6] text-white rounded-md hover:bg-[#2563eb] disabled:bg-[#9ca3af] transition-colors flex items-center gap-2" // Adicionei Tailwind para flex e gap
+        >
+          {isSummaryLoading ? (
+            <div className="flex items-center gap-2">
+              <ClipLoader size={16} color="#fff" />
+              Melhorando...
+            </div>
+          ) : (
+            "Melhorar com IA ✨"
+          )}
+        </button>
+        {/* Skeleton durante loading - Seu código original, aprimorado com Tailwind */}
+        {isSummaryLoading && (
+          <div className="skeleton mt-4 space-y-2">
+            <div className="animate-pulse bg-[#e5e7eb] h-4 rounded w-3/4"></div>
+            <div className="animate-pulse bg-[#e5e7eb] h-4 rounded w-1/2"></div>
+            <div className="animate-pulse bg-[#e5e7eb] h-4 rounded w-full"></div>
+            <p className="text-[#3b82f6] text-sm italic mt-2">Gerando melhoria com IA... Aguarde.</p>
+          </div>
+        )}
+         
       </div>
+      
     </form>
   );
 }

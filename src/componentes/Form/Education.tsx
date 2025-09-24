@@ -62,12 +62,12 @@ function updateEducation(id: string, field: keyof Education, value: any) {
         return (
           <div
             key={edu.id}
-            className="border rounded p-4 bg-white shadow-sm relative"
+            className="border rounded p-4 bg-[#ffffff] shadow-sm relative"
           >
             <button
               type="button"
               onClick={() => removeEducation(edu.id)}
-              className="absolute top-2 right-2 text-red-600 hover:text-red-800 font-bold"
+              className="absolute top-2 right-2 text-[#d60000] hover:text-[#a80000] font-bold"
               aria-label="Remover educação"
             >
               &times;
@@ -78,7 +78,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                 htmlFor={`institution-${edu.id}`}
                 className="block font-semibold mb-1"
               >
-                Instituição <span className="text-red-600">*</span>
+                Instituição <span className="text-[#d60000]">*</span>
               </label>
               <input
                 id={`institution-${edu.id}`}
@@ -87,7 +87,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                 onChange={(e) =>
                   updateEducation(edu.id, "institution", e.target.value)
                 }
-                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
                 placeholder="Nome da instituição"
                 required
               />
@@ -98,7 +98,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                 htmlFor={`course-${edu.id}`}
                 className="block font-semibold mb-1"
               >
-                Curso <span className="text-red-600">*</span>
+                Curso <span className="text-[#d60000]">*</span>
               </label>
               <input
                 id={`course-${edu.id}`}
@@ -107,7 +107,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                 onChange={(e) =>
                   updateEducation(edu.id, "course", e.target.value)
                 }
-                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
                 placeholder="Nome do curso"
                 required
               />
@@ -119,7 +119,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                   htmlFor={`startDate-${edu.id}`}
                   className="block font-semibold mb-1"
                 >
-                  Data Início <span className="text-red-600">*</span>
+                  Data Início <span className="text-[#d60000]">*</span>
                 </label>
                 <input
                   id={`startDate-${edu.id}`}
@@ -128,7 +128,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                   onChange={(e) =>
                     updateEducation(edu.id, "startDate", e.target.value)
                   }
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
                   required
                 />
               </div>
@@ -156,7 +156,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                   htmlFor={`endDate-${edu.id}`}
                   className="block font-semibold mb-1"
                 >
-                  Data Fim {edu.isCurrent ? "(Desabilitado)" : <span className="text-red-600">*</span>}
+                  Data Fim {edu.isCurrent ? "(Desabilitado)" : <span className="text-[#d60000]">*</span>}
                 </label>
                 <input
                   id={`endDate-${edu.id}`}
@@ -167,7 +167,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                   }
                   disabled={edu.isCurrent}
                   className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${
-                    edu.isCurrent ? "bg-gray-200 cursor-not-allowed" : "focus:ring-blue-500"
+                    edu.isCurrent ? "bg-[#e5e7eb] cursor-not-allowed" : "focus:ring-[#3b82f6]"
                   }`}
                   required={!edu.isCurrent}
                 />
@@ -188,13 +188,13 @@ function updateEducation(id: string, field: keyof Education, value: any) {
                   updateEducation(edu.id, "description", e.target.value)
                 }
                 rows={4}
-                className="w-full border rounded px-3 py-2 resize-none focus:outline-none focus:ring focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 resize-none focus:outline-none focus:ring focus:ring-[#3b82f6]"
                 placeholder="Descreva detalhes relevantes do curso"
               />
             </div>
 
             {dateError && (
-              <p className="text-red-600 text-sm mt-2 font-semibold" role="alert">
+              <p className="text-[#d60000] text-sm mt-2 font-semibold" role="alert">
                 {dateError}
               </p>
             )}
@@ -204,7 +204,7 @@ function updateEducation(id: string, field: keyof Education, value: any) {
       <button
         type="button"
         onClick={addEducation}
-        className="bg-purple-600 text-white px-5 py-2 rounded hover:bg-purple-700 transition"
+        className="bg-[#9333ea] text-white px-5 py-2 rounded hover:bg-[#7e22ce] transition"
       >
         Adicionar Formação
       </button>

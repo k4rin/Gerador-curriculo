@@ -44,14 +44,14 @@ export function SkillsForm({ skills, onChange }: SkillsFormProps) {
             placeholder="Habilidade"
             value={skill.name}
             onChange={(e) => updateSkill(skill.id, "name", e.target.value)}
-            className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+            className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
           />
    <select
             value={skill.level}
             onChange={(e) =>
               updateSkill(skill.id, "level", e.target.value as Skill["level"])
             }
-            className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+            className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
           >
             <option value="Básico">Básico</option>
             <option value="Intermediário">Intermediário</option>
@@ -60,7 +60,7 @@ export function SkillsForm({ skills, onChange }: SkillsFormProps) {
           <button
             type="button"
             onClick={() => removeSkill(skill.id)}
-            className="text-red-600 hover:text-red-800 font-bold text-xl"
+            className="text-[#d60000] hover:text-[#a80000] font-bold text-xl"
             aria-label="Remover habilidade"
           >
             &times;
@@ -71,7 +71,7 @@ export function SkillsForm({ skills, onChange }: SkillsFormProps) {
        <button
         type="button"
         onClick={addSkill}
-        className="bg-purple-600 text-white px-5 py-2 rounded hover:bg-purple-700 transition"
+        className="bg-[#9333ea] text-white px-5 py-2 rounded hover:bg-[#7e22ce] transition"
       >
         Adicionar Habilidade
       </button>
