@@ -7,6 +7,10 @@ import { Preview } from "./componentes/Preview/Preview";
 import {EducationForm, type Education} from "./componentes/Form/Education"
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import { ClipLoader } from "react-spinners";
+import {AxiosError} from "axios";
 
 type Tab = "personal" | "experience" | "skills" | "education";
 
@@ -23,22 +27,98 @@ export function App() {
 
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
-   const [educationList, setEducationList] = useState<Education[]>([]);
+  const [educationList, setEducationList] = useState<Education[]>([]);
   
+// Estados para loading da IA (por aba)
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [experienceLoading, setExperienceLoading] = useState<{ [key: number]: boolean }>({});
+
   // Aba ativa
   const [activeTab, setActiveTab] = useState<Tab>("personal");
+  
+    // Loading para PDF
+  const [loading, setLoading] = useState(false);
+
   // Handler genérico para dados pessoais
   function handlePersonalChange(field: keyof typeof personalData, value: string) {
     setPersonalData((prev) => ({ ...prev, [field]: value }));
   }
 
+   // Função para melhorar resumo com IA
+  const improveSummary = async (currentText: string) => {
+    if (!currentText.trim()) {
+      toast.error("Digite um texto para melhorar!");
+      return;
+    }
+    setSummaryLoading(true);
+    try {
+      const response = await axios.post("/api/improve-text", {
+        text: currentText,
+        fieldType: "summary",
+      });
 
+      const improvedText = response.data.improvedText;
+      setPersonalData((prev) => ({ ...prev, summary: improvedText }));
+      toast.success("Resumo melhorado com sucesso! ✨");
+    } catch (error) {
+          let errorMessage = "Erro na integração com IA. Tente novamente.";
+    
+    if (error instanceof AxiosError) {
+      errorMessage = error.response?.data?.error || error.response?.statusText || error.message;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = String(error);
+    }
+    toast.error(errorMessage);
+    console.error("Erro na IA (Experience):", error);
+  } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  // Função para melhorar descrição de experiência com IA (por index)
+  const improveExperienceDescription = async (index: string, currentText: string) => {
+    if (!currentText.trim()) {
+      toast.error("Digite uma descrição para melhorar!");
+      return;
+    }
+    setExperienceLoading((prev) => ({ ...prev, [index]: true }));
+    try {
+      const response = await axios.post("/api/improve-text", {
+        text: currentText,
+        fieldType: "experience",
+      });
+
+       const improvedText = response.data.improvedText;
+      setExperiences((prev) =>
+        prev.map((exp) =>
+          exp.id === index ? { ...exp, description: improvedText } : exp
+        )
+      );
+      toast.success("Descrição melhorada com sucesso! ✨");
+    } catch (error) {
+    let errorMessage = "Erro na integração com IA. Tente novamente.";
+    
+    if (error instanceof AxiosError) {
+      errorMessage = error.response?.data?.error || error.response?.statusText || error.message;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = String(error);
+    }
+    toast.error(errorMessage);
+    console.error("Erro na IA (Experience):", error);
+  } finally {
+    setExperienceLoading((prev) => ({ ...prev, [index]: false }));
+  }
+};
   // Renderiza o formulário conforme aba ativa
   function renderForm() {
     switch (activeTab) {
       case "personal":
         return (
-          <PersonalInfo data={personalData} onChange={handlePersonalChange} />
+          <PersonalInfo data={personalData} onChange={handlePersonalChange} onImproveSummary={improveSummary} isSummaryLoading={summaryLoading}/>
         );
         case "education":
         return (
@@ -46,7 +126,7 @@ export function App() {
         );
       case "experience":
         return (
-          <ExperienceForm experiences={experiences} onChange={setExperiences} />
+          <ExperienceForm experiences={experiences} onChange={setExperiences} onImproveDescription={improveExperienceDescription} loadingStates={experienceLoading} />
         );
       case "skills":
         return <SkillsForm skills={skills} onChange={setSkills} />;
@@ -54,7 +134,7 @@ export function App() {
         return null;
     }
   }
-  const [loading, setLoading] = useState(false);
+
 
   async function exportToPDF() {
     setLoading(true);
@@ -83,13 +163,13 @@ export function App() {
       left={
         <div className="flex flex-col h-full">
           {/* Navegação das abas */}
-          <nav className="flex border-b border-gray-300">
+          <nav className="flex border-b border-[#d1d5db]">
             <button
               onClick={() => setActiveTab("personal")}
               className={`flex-1 py-3 font-semibold ${
                 activeTab === "personal"
-                  ? "border-b-4 border-white-600  text-purple-600"
-                  :  "text-purple-600 hover:text-purple-500"
+                  ? "border-b-4 border-[#f0f0f0] text-[#9810fa]"
+                  :  "text-[#9810fa] hover:text-[#a94dfc]"
               }`}
             >
               Dados Pessoais
@@ -98,8 +178,8 @@ export function App() {
               onClick={() => setActiveTab("education")}
               className={`flex-1 py-3 font-semibold ${
                 activeTab === "education"
-                  ? "border-b-4 border-white-600 text-purple-600"
-                  : "text-purple-600 hover:text-purple-500"
+                  ? "border-b-4 border-[#f0f0f0] text-[#9810fa]"
+                  : "text-[#9810fa] hover:text-[#a94dfc]"
               }`}
             >
 
@@ -109,8 +189,8 @@ export function App() {
               onClick={() => setActiveTab("experience")}
               className={`flex-1 py-3 font-semibold ${
                 activeTab === "experience"
-                  ? "border-b-4 border-white-500 text-purple-600"
-                  : "text-purple-600 hover:text-purple-500"
+                  ? "border-b-4 border-[#f0f0f0] text-[#9810fa]"
+                  : "text-[#9810fa] hover:text-[#a94dfc]"
               }`}
             >   
                
@@ -120,21 +200,21 @@ export function App() {
               onClick={() => setActiveTab("skills")}
               className={`flex-1 py-3 font-semibold ${
                 activeTab === "skills"
-                  ? "border-b-4 border-white-500 text-purple-600"
-                  : "text-purple-600 hover:text-purple-500"
+                  ? "border-b-4 border-[#f0f0f0] text-[#9810fa]"
+                  : "text-[#9810fa] hover:text-[#a94dfc]"
               }`}
             >
             Habilidades
             </button>
           </nav>
           {/* Conteúdo do formulário */}
-          <div className="flex-1 overflow-auto p-4 bg-gray-50">{renderForm()}</div>
+          <div className="flex-1 overflow-auto p-4 bg-[#f9fafb]">{renderForm()}</div>
            {/* Botão exportar PDF */}
-          <div className="p-4 border-t border-gray-300">
+          <div className="p-4 border-t border-[#d1d5db]">
             <button
               onClick={exportToPDF} disabled={loading} 
               
-              className="w-full bg-purple-500 text-white py-2 rounded hover:bg-purple-700 transition"
+              className="w-full bg-[#a94dfc] text-white py-2 rounded hover:bg-[#6b00b8] transition"
             >
                {loading ? "Gerando PDF..." : "Exportar Currículo em PDF"}
 

@@ -1,5 +1,7 @@
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
+import { ClipLoader } from "react-spinners"; 
+
 export interface Experience {
   id: string;
   company: string;
@@ -13,9 +15,11 @@ export interface Experience {
 interface ExperienceFormProps {
   experiences: Experience[];
   onChange: (experiences: Experience[]) => void;
+  onImproveDescription?: (id:string, text: string) => Promise<void>;
+  loadingStates: Record<string, boolean>;
 }
 
-export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
+export function ExperienceForm({ experiences, onChange, onImproveDescription, loadingStates }: ExperienceFormProps) {
   // Adiciona uma nova experiência vazia
   function addExperience() {
     const newExp: Experience = {
@@ -42,6 +46,16 @@ export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
     );
     onChange(updated);
   }
+  // Função LOCAL para melhorar descrição: Chama a prop do pai se existir
+  const improveDescription = async (id: string, currentText: string) => {
+    // Verifica se a prop existe (graças ao ? na interface)
+    if (!onImproveDescription || !currentText.trim()) {
+      console.warn("IA não disponível ou texto vazio"); // Ou use toast.error se integrar
+      return;
+    }
+    // Chama a função do PAI (App.tsx), passando id e text
+    await onImproveDescription(id, currentText);
+  }
 
    // Validação simples de datas
   function validateDates(exp: Experience): string | null {
@@ -58,17 +72,18 @@ export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
 
    return (
     <div className="space-y-6">
-      {experiences.map((exp) => {
+      {experiences.map((exp, id) => {
         const dateError = validateDates(exp);
+
         return (
           <div
             key={exp.id}
-            className="border rounded p-4 bg-white shadow-sm relative"
+            className="border rounded p-4 bg-[#ffffff] shadow-sm relative"
           >
             <button
               type="button"
               onClick={() => removeExperience(exp.id)}
-              className="absolute top-2 right-2 text-red-600 hover:text-red-800 font-bold"
+              className="absolute top-2 right-2 text-[#d60000] hover:text-[#a80000] font-bold"
               aria-label="Remover experiência"
             >
               &times;
@@ -76,14 +91,14 @@ export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
 
             <div className="mb-3">
               <label className="block font-semibold mb-1" htmlFor={`company-${exp.id}`}>
-                Empresa <span className="text-red-600">*</span>
+                Empresa <span className="text-[#d60000]">*</span>
               </label>
               <input
                 id={`company-${exp.id}`}
                 type="text"
                 value={exp.company}
                 onChange={(e) => updateExperience(exp.id, "company", e.target.value)}
-                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
                 placeholder="Nome da empresa"
                 required
               />
@@ -91,14 +106,14 @@ export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
 
             <div className="mb-3">
               <label className="block font-semibold mb-1" htmlFor={`position-${exp.id}`}>
-                Cargo <span className="text-red-600">*</span>
+                Cargo <span className="text-[#d60000]">*</span>
               </label>
               <input
                 id={`position-${exp.id}`}
                 type="text"
                 value={exp.position}
                 onChange={(e) => updateExperience(exp.id, "position", e.target.value)}
-                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
                 placeholder="Cargo ocupado"
                 required
               />
@@ -107,14 +122,14 @@ export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
             <div className="flex gap-4 mb-3 items-end">
               <div className="flex-1">
                 <label className="block font-semibold mb-1" htmlFor={`startDate-${exp.id}`}>
-                  Data Início <span className="text-red-600">*</span>
+                  Data Início <span className="text-[#d60000]">*</span>
                 </label>
                 <input
                   id={`startDate-${exp.id}`}
                   type="date"
                   value={exp.startDate}
                   onChange={(e) => updateExperience(exp.id, "startDate", e.target.value)}
-                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+                  className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
                   required
                 />
               </div>
@@ -139,7 +154,7 @@ export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
 
                <div className="flex-1">
                 <label className="block font-semibold mb-1" htmlFor={`endDate-${exp.id}`}>
-                  Data Fim {exp.isCurrent ? "(Desabilitado)" : <span className="text-red-600">*</span>}
+                  Data Fim {exp.isCurrent ? "(Desabilitado)" : <span className="text-[#d60000]">*</span>}
                 </label>
                 <input
                   id={`endDate-${exp.id}`}
@@ -148,7 +163,7 @@ export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
                   onChange={(e) => updateExperience(exp.id, "endDate", e.target.value)}
                   disabled={exp.isCurrent}
                   className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${
-                    exp.isCurrent ? "bg-gray-200 cursor-not-allowed" : "focus:ring-blue-500"
+                    exp.isCurrent ? "bg-[#e5e7eb] cursor-not-allowed" : "focus:ring-blue-500"
                   }`}
                   required={!exp.isCurrent}
                 />
@@ -164,24 +179,48 @@ export function ExperienceForm({ experiences, onChange }: ExperienceFormProps) {
                 value={exp.description}
                 onChange={(e) => updateExperience(exp.id, "description", e.target.value)}
                 rows={4}
-                className="w-full border rounded px-3 py-2 resize-none focus:outline-none focus:ring focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-[#3b82f6]"
                 placeholder="Descreva suas responsabilidades e conquistas"
-              />
+             />
+             {onImproveDescription && (
+                <button
+                  onClick={() => improveDescription(exp.id, exp.description)}
+                  disabled={loadingStates?.[id] || !exp.description.trim()}
+                  className="improve-btn"
+                >
+                  {loadingStates?.[exp.id] ? (
+                    <div className="loading-container">
+                      <ClipLoader size={16} color="#fff" />
+                      Melhorando...
+                    </div>
+                  ) : (
+                    "Melhorar com IA ✨"
+                  )}
+                </button>
+              )}
             </div>
-
+              
               {dateError && (
-              <p className="text-red-600 text-sm mt-2 font-semibold" role="alert">
+              <p className="text-[#d60000] text-sm mt-2 font-semibold" role="alert">
                 {dateError}
               </p>
             )}
+             {/* Skeleton durante loading */}
+            {loadingStates?.[id] && (
+              <div className="skeleton">
+                <div style={{ height: "20px", width: "80%", background: "#e0e0e0", margin: "10px auto", borderRadius: "2px" }}></div>
+              </div>
+            )}
           </div>
+          
         );
+        
       })}
-
+            
       <button
         type="button"
         onClick={addExperience}
-        className="bg-purple-600 text-white px-5 py-2 rounded hover:bg-purple-700 transition"
+        className="bg-[#9810fa] text-white px-5 py-2 rounded hover:bg-[#6b00b8] transition"
       >
         Adicionar Experiência
       </button>
