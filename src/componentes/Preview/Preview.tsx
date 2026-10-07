@@ -1,8 +1,6 @@
-import React from "react";
 import { type Experience } from "../Form/Experience";
 import {type  Skill } from "../Form/Skills";
-import {type Education} from "../Form/Education"
-import { useImproveText } from "../../hooks/useImproveText";
+import {type Education} from "../Form/Education";
 
 interface PersonalInfoData {
   name: string;

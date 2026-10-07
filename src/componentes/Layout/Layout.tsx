@@ -1,4 +1,3 @@
-import React from "react";
 interface LayoutProps {
   left: React.ReactNode;
   right: React.ReactNode;

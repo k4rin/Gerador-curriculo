@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Layout } from "./componentes/Layout/Layout";
 import { PersonalInfo } from "./componentes/Form/DadosPessoais";
 import { ExperienceForm, type Experience } from "./componentes/Form/Experience";
@@ -8,8 +8,7 @@ import {EducationForm, type Education} from "./componentes/Form/Education"
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import { ClipLoader } from "react-spinners";
+import { toast } from "react-toastify";
 import {AxiosError} from "axios";
 
 type Tab = "personal" | "experience" | "skills" | "education";
